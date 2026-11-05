@@ -1,6 +1,6 @@
 
 -- ============================================
--- SUMPOSITIVE TICKETING APPLICATION
+-- SUM POSITIVE TICKETING APPLICATION
 -- Database: sp_ticketing_db
 -- Tables: users, tickets
 -- ============================================
@@ -16,26 +16,26 @@ CREATE TABLE IF NOT EXISTS users (
 
                                      full_name VARCHAR(100) NOT NULL,
 
-    email VARCHAR(150) NOT NULL,
+                                     email VARCHAR(150) NOT NULL,
 
-    password_hash VARCHAR(255) NOT NULL,
+                                     password_hash VARCHAR(255) NOT NULL,
 
-    role VARCHAR(30) NOT NULL,
+                                     role VARCHAR(30) NOT NULL,
 
-    status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
+                                     status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
 
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-                             CONSTRAINT uk_users_email UNIQUE (email),
+                                     CONSTRAINT uk_users_email UNIQUE (email),
 
-    CONSTRAINT chk_user_role
-    CHECK (role IN ('ADMIN', 'USER')),
+                                     CONSTRAINT chk_user_role
+                                         CHECK (role IN ('ADMIN', 'USER')),
 
-    CONSTRAINT chk_user_status
-    CHECK (status IN ('ACTIVE', 'INACTIVE', 'SUSPENDED'))
-    );
+                                     CONSTRAINT chk_user_status
+                                         CHECK (status IN ('ACTIVE', 'INACTIVE', 'SUSPENDED'))
+);
 
 
 -- ============================================
@@ -48,58 +48,58 @@ CREATE TABLE IF NOT EXISTS tickets (
 
                                        title VARCHAR(200) NOT NULL,
 
-    description TEXT,
+                                       description TEXT,
 
-    status VARCHAR(30) NOT NULL DEFAULT 'OPEN',
+                                       status VARCHAR(30) NOT NULL DEFAULT 'TO_DO',
 
-    priority VARCHAR(20) NOT NULL DEFAULT 'MEDIUM',
+                                       priority VARCHAR(20) NOT NULL DEFAULT 'MEDIUM',
 
-    created_by BIGINT NOT NULL,
+                                       created_by BIGINT NOT NULL,
 
-    assignee_id BIGINT,
+                                       assignee_id BIGINT,
 
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                       due_date TIMESTAMP WITH TIME ZONE,
 
-    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                       created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+                                       updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
 
-                             -- Ticket creator relationship
-                             CONSTRAINT fk_ticket_creator
-                             FOREIGN KEY (created_by)
-    REFERENCES users(id)
-                         ON DELETE RESTRICT,
+    -- Ticket creator relationship
+                                       CONSTRAINT fk_ticket_creator
+                                           FOREIGN KEY (created_by)
+                                               REFERENCES users(id)
+                                               ON DELETE RESTRICT,
 
 
     -- Ticket assignee relationship
-    CONSTRAINT fk_ticket_assignee
-    FOREIGN KEY (assignee_id)
-    REFERENCES users(id)
-                         ON DELETE SET NULL,
+                                       CONSTRAINT fk_ticket_assignee
+                                           FOREIGN KEY (assignee_id)
+                                               REFERENCES users(id)
+                                               ON DELETE SET NULL,
 
 
     -- Ticket status validation
-    CONSTRAINT chk_ticket_status
-    CHECK (
-              status IN (
-              'OPEN',
-              'IN_PROGRESS',
-              'RESOLVED',
-              'CLOSED'
-                        )
-    ),
+                                       CONSTRAINT chk_ticket_status
+                                           CHECK (
+                                               status IN (
+                                                          'TO_DO',
+                                                          'IN_PROGRESS',
+                                                          'DONE'
+                                                   )
+                                               ),
 
 
     -- Ticket priority validation
-    CONSTRAINT chk_ticket_priority
-    CHECK (
-              priority IN (
-              'LOW',
-              'MEDIUM',
-              'HIGH',
-              'URGENT'
-                          )
-    )
-    );
+                                       CONSTRAINT chk_ticket_priority
+                                           CHECK (
+                                               priority IN (
+                                                            'LOW',
+                                                            'MEDIUM',
+                                                            'HIGH'
+                                                   )
+                                               )
+);
 
 
 -- ============================================
@@ -109,6 +109,9 @@ CREATE TABLE IF NOT EXISTS tickets (
 CREATE INDEX IF NOT EXISTS idx_tickets_status
     ON tickets(status);
 
+CREATE INDEX IF NOT EXISTS idx_tickets_priority
+    ON tickets(priority);
+
 CREATE INDEX IF NOT EXISTS idx_tickets_assignee_id
     ON tickets(assignee_id);
 
@@ -117,6 +120,9 @@ CREATE INDEX IF NOT EXISTS idx_tickets_created_at
 
 CREATE INDEX IF NOT EXISTS idx_tickets_created_by
     ON tickets(created_by);
+
+CREATE INDEX IF NOT EXISTS idx_tickets_due_date
+    ON tickets(due_date);
 
 
 -- ============================================

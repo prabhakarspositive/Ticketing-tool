@@ -29,11 +29,15 @@ public class Ticket {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
-    private TicketStatus status = TicketStatus.OPEN;
+    private TicketStatus status = TicketStatus.TO_DO;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private TicketPriority priority = TicketPriority.MEDIUM;
+
+    @Column(name = "due_date")
+    private OffsetDateTime dueDate;
+
 
     // User who created the ticket
     @ManyToOne(fetch = FetchType.LAZY)
@@ -55,5 +59,20 @@ public class Ticket {
 
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
+
+
+    @PrePersist
+    protected void onCreate() {
+        OffsetDateTime now = OffsetDateTime.now();
+
+        this.createdAt = now;
+        this.updatedAt = now;
+    }
+
+    // Automatically update timestamp before UPDATE
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = OffsetDateTime.now();
+    }
 
 }
